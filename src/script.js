@@ -58,13 +58,13 @@ world.gravity.set(0, -10, 0);
  */
 const textureLoader = new THREE.TextureLoader()
 
-const front = textureLoader.load('/textures/1.png') 
-const black = textureLoader.load('/textures/black.jpg') 
-const front2 = textureLoader.load('/textures/3.png') 
-const zebra = textureLoader.load('/textures/zebra2.jpg')
-const roadNothing = textureLoader.load('/textures/roadNotheng.jpg')
-const zebraMap = textureLoader.load('/textures/zebraMap.jpg')
-const shadowBlack = textureLoader.load('/textures/shadowBlack2.jpg')
+const front = textureLoader.load(env.BASE_URL + '/textures/1.png') 
+const black = textureLoader.load(env.BASE_URL +'/textures/black.jpg') 
+const front2 = textureLoader.load(env.BASE_URL +'/textures/3.png') 
+const zebra = textureLoader.load(env.BASE_URL +'/textures/zebra2.jpg')
+const roadNothing = textureLoader.load(env.BASE_URL +'/textures/roadNotheng.jpg')
+const zebraMap = textureLoader.load(env.BASE_URL +'/textures/zebraMap.jpg')
+const shadowBlack = textureLoader.load(env.BASE_URL +'/textures/shadowBlack2.jpg')
 // zebra.repeat.x = 5
 // zebra.wrapS = THREE.RepeatWrapping
 
@@ -171,7 +171,7 @@ createBox(14, 6, 4, { x: 0, y: 3, z: 45 }, boxMaterial2, { x: 1.8, y: 0.031, z: 
 createBox(4, 6, 14, { x: -9, y: 3, z: -30 }, boxMaterial1, { x: -7.8, y: 0.031, z: -30.4 }, 2)
 
 gltfLoader.load(
-  '/models/Traffic.glb',
+  env.BASE_URL +'/models/Traffic.glb',
   (gltf) => {
     
     const TrafficObject = gltf.scene.children[2].children[0]
@@ -248,7 +248,7 @@ gltfLoader.load(
 
 
 gltfLoader.load(
-    '/models/Bus/SchoolBus.gltf',
+  env.BASE_URL + '/models/Bus/SchoolBus.gltf',
     (gltf) => {
 
       const options = {
