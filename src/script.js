@@ -9,6 +9,10 @@ import Stats from 'stats.js'
 // import CannonDebugRenderer from './utils/cannonDebugRenderer'
 
 //console.log(CannonUtils);
+const sizes = {
+  width: window.innerWidth,
+  height: window.innerHeight
+}
 
 const stats = Stats()
 document.body.appendChild(stats.dom)
@@ -67,9 +71,10 @@ const zebra = textureLoader.load(env.BASE_URL +'/textures/zebra2.jpg')
 const roadNothing = textureLoader.load(env.BASE_URL +'/textures/roadNotheng.jpg')
 const zebraMap = textureLoader.load(env.BASE_URL +'/textures/zebraMap.jpg')
 const shadowBlack = textureLoader.load(env.BASE_URL +'/textures/shadowBlack2.jpg')
+const snow = textureLoader.load(env.BASE_URL +'/textures/snow.png') 
 // zebra.repeat.x = 5
 // zebra.wrapS = THREE.RepeatWrapping
-
+console.log(snow);
 zebra.repeat.y = 15
 zebra.wrapT = THREE.RepeatWrapping
 
@@ -171,6 +176,70 @@ createBox(4, 6, 4, { x: 40, y: 3, z: 12 }, boxMaterial2, { x: 41.8, y: 0.01, z: 
 
 createBox(14, 6, 4, { x: 0, y: 3, z: 45 }, boxMaterial2, { x: 1.8, y: 0.031, z: 43.6 }, 2, true)
 createBox(4, 6, 14, { x: -9, y: 3, z: -30 }, boxMaterial1, { x: -7.8, y: 0.031, z: -30.4 }, 2)
+
+//Snow
+const snowParametrs = {
+  vertMovingSpeed: 1,
+  LatealSpeed: 1,
+  count: 500,
+  size: 0.3
+}
+
+let geometry = null
+let pointsMaterial = null
+let points = null
+console.log(points);
+const generateSnow = () => {
+
+  if(points !== null)
+    {
+        geometry.dispose()
+        pointsMaterial.dispose()
+        scene.remove(points)
+    }
+
+ geometry= new THREE.Geometry();
+
+ pointsMaterial = new THREE.PointsMaterial({
+    size: snowParametrs.size,
+    transparent:true,
+    opacity: 0.8,
+    map:snow,
+    blending:THREE.AdditiveBlending,
+    sizeAttenuation:true,
+    depthTest: false
+});
+
+let range = 100;
+
+for (let i = 0; i < snowParametrs.count; i++ ) {
+
+    let vertice = new THREE.Vector3(
+        Math.random() * range - range / 2,
+        Math.random() * range * 1.5,
+        Math.random() * range - range / 2);
+    /* Vertical moving speed */
+    vertice.velocityY = (0.1 + Math.random() / 3) * snowParametrs.vertMovingSpeed
+    /* Lateral speed */
+    vertice.velocityX = ((Math.random() - 0.5) / 3)* snowParametrs.LatealSpeed;
+
+    /* Add vertices to geometry */
+    geometry.vertices.push(vertice);
+
+}
+
+geometry.center();
+
+points = new THREE.Points(geometry, pointsMaterial);
+points.position.y = -30;
+
+scene.add(points);
+}
+
+gui.add(snowParametrs, 'count').min(100).max(13000).step(10).name('Количество снежинок').onFinishChange(generateSnow)
+gui.add(snowParametrs, 'size').min(0.01).max(1).step(0.001).name('Размер снежинок').onFinishChange(generateSnow)
+gui.add(snowParametrs, 'vertMovingSpeed').min(0.1).max(10).step(0.001).name('Скорость с которой падают снежинки').onFinishChange(generateSnow)
+gui.add(snowParametrs, 'LatealSpeed').min(0.3).max(10).step(0.001).name('Разброс снежинок').onFinishChange(generateSnow)
 
 gltfLoader.load(
   env.BASE_URL +'/models/Traffic.glb',
@@ -287,10 +356,13 @@ gltfLoader.load(
           }
       })
         wheelVisuals1.push(gltf.scene.children[0].children[0]);
-        gltf.scene.children[0].children[0].scale.set(0.3,0.3,0.3)
         tesla.add(gltf.scene.children[0].children[0])
         i++
       }
+      
+    //  axHelper.rotation.z = Math.PI
+    //  scene.add(axHelper)
+      tesla.scale.set(0.3,0.3,0.3)
      // const  wheelVisuals1 = [tesla.children[3], tesla.children[2], tesla.children[3], tesla.children[4]]
       const bus = tesla.children[4];
       tesla.add(bus)
@@ -440,12 +512,15 @@ chassisBody.allowSleep = false
 chassisBody.position.set(42, 1, 4);
 //chassisBody.angularVelocity.set(0, 0, 0); // initial velocity
 chassisBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,-1,0), Math.PI/2)
+//chassisBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,0), Math.PI/2)
 
 
 // car visual body
 var geometry = new THREE.BoxBufferGeometry(1, 1, 4.4) // double chasis shape
 var material = new THREE.MeshBasicMaterial({color: 0xffff00});
 var box1 = new THREE.Mesh(geometry, material);
+// const axHelper = new THREE.AxesHelper(3)
+// box1.add(axHelper)
 // var box = tesla
 //box.position.set(0, 4.2, 0)
 // box.castShadow = true;
@@ -544,7 +619,7 @@ world.addEventListener('postStep', function() {
 var geometry = new THREE.PlaneBufferGeometry(200, 200, 100);
 var material = new THREE.MeshStandardMaterial({
    color: 'rgb(31, 29, 29)',
-  // side: THREE.DoubleSide
+   //side: THREE.DoubleSide
 });
 var plane = new THREE.Mesh(geometry, material);
 plane.rotation.x = Math.PI/2;
@@ -589,6 +664,7 @@ for(let i=1; i<9; i++){
   });
   brickBody.allowSleep = true;
   brickBody.sleepSpeedLimit = 1.0;
+  brickBody.sleepTime = 1.0;
 
   if(i%2===0){
     brickBody.position.set(-6,a, brickSizes.z*j*1.2 + brickSizes.z/2)
@@ -633,10 +709,7 @@ scene.add(light);
 /**
  * Sizes
  */
-const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
-}
+
 
 window.addEventListener('resize', () =>
 {
@@ -695,11 +768,12 @@ const tick = () =>
     world.step(1/60, deltaTime, 3)
     
     //Car
-    box1.position.copy(chassisBody.position);
+  //  box1.position.copy(chassisBody.position);
     tesla.quaternion.copy(chassisBody.quaternion);
     tesla.position.set(chassisBody.position.x, chassisBody.position.y - 0.65 ,chassisBody.position.z)
     box1.position.copy(chassisBody.position);
     box1.quaternion.copy(chassisBody.quaternion);
+   // console.log(chassisBody.quaternion);
 
     //trampline.position.copy(tramplinBody.position)
 
@@ -719,8 +793,26 @@ for(const object of brickObjects){
       camera.position.set(box1.position.x + CameraOffset.x, box1.position.y + CameraOffset.y, box1.position.z + CameraOffset.z)
      camera.lookAt(box1.position)
     }
-     
 
+    //Snow Update
+    let snowP = scene.children.filter(el => el instanceof THREE.Points)
+  //  console.log(snowP);
+    let vertices = snowP[0].geometry.vertices
+  //  console.log(vertices);
+    if(vertices){
+    vertices.forEach(function (v) {
+ 
+        v.y = v.y - (v.velocityY);
+        v.x = v.x - (v.velocityX);
+ 
+        if (v.y <= 0) v.y = 60;
+        if (v.x <= -20 || v.x >= 20) v.velocityX = v.velocityX * -1;
+ 
+    });
+  }
+    /* The vertices need to be updated after the change, otherwise the raindrop effect cannot be realized */
+ //   points.geometry.verticesNeedUpdate = true;
+ snowP[0].geometry.verticesNeedUpdate = true;
      stats.update()
     // Render
     renderer.render(scene, camera)
@@ -774,3 +866,5 @@ const navigate = (e) => {
 tick()
 }
 )
+
+generateSnow()
