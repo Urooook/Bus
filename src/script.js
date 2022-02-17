@@ -52,7 +52,9 @@ world.gravity.set(0, -10, 0);
 
 // const fog = new THREE.Fog('#262837', 10, 45)
 // scene.fog = fog
-
+const env = {
+  BASE_URL: 'Bus'
+}
 /**
  * Textures
  */
