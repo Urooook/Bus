@@ -1,5 +1,5 @@
 {
-  "homepage": "https://Urooook.github.io/Bus/",
+  "homepage": "https://Urooook.github.io/Bus",
   "scripts": {
     "build": "webpack --config ./bundler/webpack.prod.js",
     "dev": "webpack serve --config ./bundler/webpack.dev.js",
