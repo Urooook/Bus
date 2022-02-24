@@ -5,6 +5,7 @@ import * as dat from 'dat.gui'
 import * as CANNON from 'cannon-es'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import Stats from 'stats.js'
+
 //import CannonUtils from "./utils/cannonUtils.js";
 // import CannonDebugRenderer from './utils/cannonDebugRenderer'
 
@@ -363,6 +364,7 @@ gltfLoader.load(
     //  axHelper.rotation.z = Math.PI
     //  scene.add(axHelper)
       tesla.scale.set(0.3,0.3,0.3)
+
      // const  wheelVisuals1 = [tesla.children[3], tesla.children[2], tesla.children[3], tesla.children[4]]
       const bus = tesla.children[4];
       tesla.add(bus)
@@ -512,21 +514,30 @@ chassisBody.allowSleep = false
 chassisBody.position.set(42, 1, 4);
 //chassisBody.angularVelocity.set(0, 0, 0); // initial velocity
 chassisBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,-1,0), Math.PI/2)
-//chassisBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,0), Math.PI/2)
+//chassisBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,-0.3,-1), Math.PI/2)
 
 
 // car visual body
 var geometry = new THREE.BoxBufferGeometry(1, 1, 4.4) // double chasis shape
 var material = new THREE.MeshBasicMaterial({color: 0xffff00});
 var box1 = new THREE.Mesh(geometry, material);
-// const axHelper = new THREE.AxesHelper(3)
-// box1.add(axHelper)
+ const axHelper = new THREE.AxesHelper(3)
+ box1.add(axHelper)
+ box1.rotation.reorder('YXZ')
+ 
 // var box = tesla
 //box.position.set(0, 4.2, 0)
 // box.castShadow = true;
 // box.receiveShadow = true;
 //scene.add(box);
+// tesla.add
 //scene.add(box1);
+
+var geometry = new THREE.BoxBufferGeometry(1, 2.45, 4.4) // double chasis shape
+var material = new THREE.MeshBasicMaterial({color: 'red'});
+var box2 = new THREE.Mesh(geometry, material);
+//scene.add(box2)
+
 
 const vehicle = new CANNON.RaycastVehicle({
     chassisBody,
@@ -586,6 +597,7 @@ vehicle.wheelInfos.forEach((wheel) => {
 //         side: THREE.DoubleSide
 //     })
 // )
+
 // trampline.castShadow = true
 // trampline.receiveShadow = true
 // trampline.position.set(14,1,2)
@@ -603,12 +615,15 @@ vehicle.wheelInfos.forEach((wheel) => {
 // world.addBody(tramplinBody)
 
 world.addEventListener('postStep', function() {
+//  / console.log(tesla.children[1]);
     for (var i=0; i<vehicle.wheelInfos.length; i++) {
       vehicle.updateWheelTransform(i);
       var t = vehicle.wheelInfos[i].worldTransform;
       // update wheel physics
       wheelBodies[i].position.set(t.position);
       wheelBodies[i].quaternion.copy(t.quaternion);
+     // tesla.children[1].position.copy(t.position)
+    //  tesla.children[1].rotation.z = t.quaternion.z/10
       // update wheel visuals
       wheelVisuals[i].quaternion.copy(t.quaternion);
       wheelVisuals[i].position.copy(t.position);
@@ -618,11 +633,12 @@ world.addEventListener('postStep', function() {
 
 var geometry = new THREE.PlaneBufferGeometry(200, 200, 100);
 var material = new THREE.MeshStandardMaterial({
-   color: 'rgb(31, 29, 29)',
+   color: 'black',
    //side: THREE.DoubleSide
 });
 var plane = new THREE.Mesh(geometry, material);
 plane.rotation.x = Math.PI/2;
+//plane.rotation.z = Math.PI;
 //plane.receiveShadow = true
 scene.add(plane);
 
@@ -646,7 +662,7 @@ const brickObjects = []
 let a =  brickSizes.y
 const brickShape = new CANNON.Box(new CANNON.Vec3(brickSizes.x*0.5, brickSizes.y*0.5, brickSizes.z*0.5))
 const brickGeometry = new THREE.BoxBufferGeometry(brickSizes.x, brickSizes.y, brickSizes.z)
-const brickMaterial = new THREE.MeshStandardMaterial({ color: 'grey' })
+const brickMaterial = new THREE.MeshStandardMaterial({ color: 'white' })
 for(let i=1; i<9; i++){
   
  for(let j =1; j<7; j++){
@@ -692,6 +708,7 @@ for(let i=1; i<9; i++){
  */
 console.log(chassisBody.position)
 const ambientLight = new THREE.AmbientLight(0xffffff, 1)
+//ambientLight.castShadow = true;
 scene.add(ambientLight)
 
 var light = new THREE.DirectionalLight(0xffffff, 0.7);
@@ -754,6 +771,31 @@ renderer.outputEncoding = THREE.sRGBEncoding
 renderer.toneMapping = THREE.ACESFilmicToneMapping
 renderer.toneMappingExposure = 0.5;
 
+const rotationBodyForceCount = {
+  up: 0,
+  edge: 0
+}
+
+const generateBusHeight = (rotation) => {
+  const y = (1.3/Math.PI)* Math.abs(rotation) - 0.65
+  return y;
+}
+
+const generateBusOffsetX = (rotation) => {
+ // console.log(rotation.toFixed(2));
+  switch(rotation.toFixed(2)){
+    case (Math.PI/2).toFixed(2): {
+      return (1.3/Math.PI)* Math.abs(rotation) + 0.65
+    }
+    case (-Math.PI/2).toFixed(2): {
+      return (1.3/Math.PI)* Math.abs(rotation) - 0.65
+    }
+    default: {
+      return 0
+    }
+  }
+}
+
 /**
  * Animate
  */
@@ -769,12 +811,24 @@ const tick = () =>
     
     //Car
   //  box1.position.copy(chassisBody.position);
+  const BusOffsetY = generateBusHeight(box1.rotation.z)
+  const BusOffsetX = generateBusOffsetX(box1.rotation.z)
+  //console.log(BusOffsetX);
+  box1.position.set(chassisBody.position.x, chassisBody.position.y, chassisBody.position.z);
+  box1.quaternion.copy(chassisBody.quaternion);
+  // box2.position.set(chassisBody.position.x, chassisBody.position.y - 0.65, chassisBody.position.z);
+  //   box2.quaternion.copy(chassisBody.quaternion);
     tesla.quaternion.copy(chassisBody.quaternion);
-    tesla.position.set(chassisBody.position.x, chassisBody.position.y - 0.65 ,chassisBody.position.z)
-    box1.position.copy(chassisBody.position);
-    box1.quaternion.copy(chassisBody.quaternion);
-   // console.log(chassisBody.quaternion);
+    tesla.position.set(chassisBody.position.x , chassisBody.position.y + BusOffsetY , chassisBody.position.z);
+  //  tesla.up.set(0,-1,0)
+//console.log(tesla);
 
+    // const localUp = new CANNON.Vec3(0, 0, 1)
+    // const worldUp = new CANNON.Vec3()
+    // console.log(worldUp.dot(localUp));
+  //  var localVelocity = new CANNON.Vec3(0, 0, 1);
+  //  chassisBody.quaternion.vmult(localVelocity, chassisBody.velocity);
+//chassisBody.applyImpulse(new CANNON.Vec3(0, -2, 0), chassisBody.position)
     //trampline.position.copy(tramplinBody.position)
 
 for(const object of brickObjects){
@@ -782,8 +836,42 @@ for(const object of brickObjects){
   object.brick.quaternion.copy(object.brickBody.quaternion)
 
 }
+//wheelBodies[3].force.set(new CANNON.Vec3)
+// if(Math.abs(box1.rotation.z).toFixed(2) === (Math.PI/2).toFixed(2)) {
+//   console.log(box1.rotation)
+//   tesla.position.set(chassisBody.position.x, chassisBody.position.y, chassisBody.position.z)
+// }
+//console.log(box1.rotation);
+if(Math.abs(box1.rotation.z).toFixed(2) === (Math.PI).toFixed(2)) {
+ // tesla.position.set(chassisBody.position.x, chassisBody.position.y + 0.65, chassisBody.position.z)
+  if(rotationBodyForceCount.up === 60) {
+    chassisBody.velocity.y += 4
+    chassisBody.velocity.x += 4
+    rotationBodyForceCount.up = 0
+  }
+  rotationBodyForceCount.up += 1
+}
 
-//console.log(chassisBody.position)
+if((box1.rotation.z).toFixed(2) === (-Math.PI/2).toFixed(2)) {
+ // tesla.position.set(chassisBody.position.x, chassisBody.position.y, chassisBody.position.z)
+  if(rotationBodyForceCount.edge === 60) {
+    chassisBody.velocity.y += 3
+    chassisBody.velocity.x += -3
+    rotationBodyForceCount.edge = 0
+  }
+  rotationBodyForceCount.edge += 1
+}
+
+if((box1.rotation.z).toFixed(2) === (Math.PI/2).toFixed(2)) {
+  //tesla.position.set(chassisBody.position.x, chassisBody.position.y, chassisBody.position.z)
+  if(rotationBodyForceCount.edge === 60) {
+    chassisBody.velocity.y += 3
+    chassisBody.velocity.x += 3
+    rotationBodyForceCount.edge = 0
+  }
+  rotationBodyForceCount.edge += 1
+}
+// console.log(Math.abs(box1.rotation.z).toFixed(2) === (Math.PI/2).toFixed(2));
     
     // Update controls
     controls.update()
@@ -796,9 +884,8 @@ for(const object of brickObjects){
 
     //Snow Update
     let snowP = scene.children.filter(el => el instanceof THREE.Points)
-  //  console.log(snowP);
     let vertices = snowP[0].geometry.vertices
-  //  console.log(vertices);
+
     if(vertices){
     vertices.forEach(function (v) {
  
@@ -808,12 +895,11 @@ for(const object of brickObjects){
         if (v.y <= 0) v.y = 60;
         if (v.x <= -20 || v.x >= 20) v.velocityX = v.velocityX * -1;
  
-    });
-  }
-    /* The vertices need to be updated after the change, otherwise the raindrop effect cannot be realized */
- //   points.geometry.verticesNeedUpdate = true;
- snowP[0].geometry.verticesNeedUpdate = true;
-     stats.update()
+      });
+    }
+    snowP[0].geometry.verticesNeedUpdate = true;
+
+    stats.update()
     // Render
     renderer.render(scene, camera)
 
@@ -823,6 +909,87 @@ for(const object of brickObjects){
    
 }
 
+var engineForce = 600,
+maxSteerVal = 0.3;
+
+const buttonForward = document.querySelector('.button-forward1')
+const buttonBack = document.querySelector('.button-back1')
+const buttonLeft = document.querySelector('.button-left1')
+const buttonRight = document.querySelector('.button-right1')
+console.log(buttonForward);
+
+buttonForward.addEventListener('pointerover', () => {
+  vehicle.setBrake(0.5, 0);
+  vehicle.setBrake(0.5, 1);
+  vehicle.setBrake(0.5, 2);
+  vehicle.setBrake(0.5, 3);
+  vehicle.applyEngineForce(-engineForce, 2);
+  vehicle.applyEngineForce(-engineForce, 3);
+})
+
+buttonForward.addEventListener('pointerout', () => {
+  vehicle.setBrake(0.5, 0);
+  vehicle.setBrake(0.5, 1);
+  vehicle.setBrake(0.5, 2);
+  vehicle.setBrake(0.5, 3);
+  vehicle.applyEngineForce(0, 2);
+  vehicle.applyEngineForce(0, 3);
+})
+
+buttonBack.addEventListener('pointerover', () => {
+  vehicle.setBrake(0.5, 0);
+  vehicle.setBrake(0.5, 1);
+  vehicle.setBrake(0.5, 2);
+  vehicle.setBrake(0.5, 3);
+  vehicle.applyEngineForce(engineForce, 2);
+  vehicle.applyEngineForce(engineForce, 3);
+})
+
+buttonBack.addEventListener('pointerout', () => {
+  vehicle.setBrake(0.5, 0);
+  vehicle.setBrake(0.5, 1);
+  vehicle.setBrake(0.5, 2);
+  vehicle.setBrake(0.5, 3);
+  vehicle.applyEngineForce(0, 2);
+  vehicle.applyEngineForce(0, 3);
+})
+
+buttonLeft.addEventListener('pointerover', () => {
+  vehicle.setBrake(0.5, 0);
+  vehicle.setBrake(0.5, 1);
+  vehicle.setBrake(0.5, 2);
+  vehicle.setBrake(0.5, 3);
+  vehicle.setSteeringValue(maxSteerVal, 2);
+  vehicle.setSteeringValue(maxSteerVal, 3);
+})
+
+buttonLeft.addEventListener('pointerout', () => {
+  vehicle.setBrake(0.5, 0);
+  vehicle.setBrake(0.5, 1);
+  vehicle.setBrake(0.5, 2);
+  vehicle.setBrake(0.5, 3);
+  vehicle.setSteeringValue(0, 2);
+  vehicle.setSteeringValue(0, 3);
+})
+
+buttonRight.addEventListener('pointerover', () => {
+  vehicle.setBrake(0.5, 0);
+  vehicle.setBrake(0.5, 1);
+  vehicle.setBrake(0.5, 2);
+  vehicle.setBrake(0.5, 3);
+  vehicle.setSteeringValue(-maxSteerVal, 2);
+  vehicle.setSteeringValue(-maxSteerVal, 3);
+})
+
+buttonRight.addEventListener('pointerout', () => {
+  vehicle.setBrake(0.5, 0);
+  vehicle.setBrake(0.5, 1);
+  vehicle.setBrake(0.5, 2);
+  vehicle.setBrake(0.5, 3);
+  vehicle.setSteeringValue(0, 2);
+  vehicle.setSteeringValue(0, 3);
+})
+
 const navigate = (e) => {
     if (e.type != 'keydown' && e.type != 'keyup') return;
     var keyup = e.type == 'keyup'
@@ -831,8 +998,7 @@ const navigate = (e) => {
     vehicle.setBrake(0.5, 2);
     vehicle.setBrake(0.5, 3);
   
-    var engineForce = 600,
-        maxSteerVal = 0.3;
+
     
               
     switch(e.keyCode) {
