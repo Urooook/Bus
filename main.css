@@ -18,5 +18,62 @@ body
     outline: none;
 }
 
+.buttons {
+    width: 65px;
+    height : 65px;
+    position: fixed;
+    z-index: 1;
+    display: none;
+}
+
+.buttons1 {
+    width: 65px;
+    height : 65px;
+    position: fixed;
+    z-index: 3;
+    display: none;
+}
+
+img {
+    max-width: 65px;
+    max-height: 65px;
+    background-color: rgba(255,255,255, 0.5);
+    border-radius: 10px;
+}
+
+.button-forward, .button-forward1 {
+    bottom: 100px;
+    right: 10px;
+    transform: rotate(90deg);
+    /* background-color: red; */
+    /* background: url('./img/button.png'); */
+}
+
+.button-back, .button-back1 {
+    bottom: 10px;
+    right: 10px;
+    transform: rotate(-90deg);
+}
+
+.button-left, .button-left1 {
+    bottom: 10px;
+    left: 10px;
+    /* transform: rotate(90deg); */
+}
+
+.button-right, .button-right1 {
+    bottom: 10px;
+    left: 100px;
+    transform: rotate(180deg);
+}
+
+@media (max-width: 760px) {
+    .buttons {
+        display: block;
+    }
+    .buttons1 {
+        display: block;
+    }
+  }
 
 /*# sourceMappingURL=main.css.map*/
