@@ -5,6 +5,7 @@ import * as dat from 'dat.gui'
 import * as CANNON from 'cannon-es'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import Stats from 'stats.js'
+import { RedFormat } from 'three'
 
 //import CannonUtils from "./utils/cannonUtils.js";
 // import CannonDebugRenderer from './utils/cannonDebugRenderer'
@@ -66,13 +67,16 @@ const env = {
 const textureLoader = new THREE.TextureLoader()
 
 const front = textureLoader.load(env.BASE_URL + '/textures/1.png') 
+const frontSide = textureLoader.load(env.BASE_URL + '/textures/2.png') 
 const black = textureLoader.load(env.BASE_URL +'/textures/black.jpg') 
 const front2 = textureLoader.load(env.BASE_URL +'/textures/3.png') 
+const front2Side = textureLoader.load(env.BASE_URL +'/textures/4.png') 
 const zebra = textureLoader.load(env.BASE_URL +'/textures/zebra2.jpg')
 const roadNothing = textureLoader.load(env.BASE_URL +'/textures/roadNotheng.jpg')
 const zebraMap = textureLoader.load(env.BASE_URL +'/textures/zebraMap.jpg')
 const shadowBlack = textureLoader.load(env.BASE_URL +'/textures/shadowBlack2.jpg')
 const snow = textureLoader.load(env.BASE_URL +'/textures/snow.png') 
+const busWheel = textureLoader.load(env.BASE_URL +'/textures/busWheel.jpg')
 // zebra.repeat.x = 5
 // zebra.wrapS = THREE.RepeatWrapping
 console.log(snow);
@@ -85,22 +89,32 @@ zebra.wrapT = THREE.RepeatWrapping
 const gltfLoader = new GLTFLoader()
 
 var cubeMaterials2 = [
-  new THREE.MeshBasicMaterial({map: front2, aoMap: front2, aoMapIntensity: 2}),
-  new THREE.MeshBasicMaterial({map: front2, aoMap: front2, aoMapIntensity: 2}),
+  new THREE.MeshBasicMaterial({map: front2Side, aoMap: front2, aoMapIntensity: 3}),
+  new THREE.MeshBasicMaterial({map: front2, aoMap: front2, aoMapIntensity: 3}),
   new THREE.MeshBasicMaterial({map: black}),
-  new THREE.MeshBasicMaterial({map: black, aoMap: front, aoMapIntensity: 2}),
-  new THREE.MeshBasicMaterial({map: front2, aoMap: front2, aoMapIntensity: 2}),
-  new THREE.MeshBasicMaterial({map: front2, aoMap: front2, aoMapIntensity: 2}),
+  new THREE.MeshBasicMaterial({map: black, aoMap: front, aoMapIntensity: 3}),
+  new THREE.MeshBasicMaterial({map: front2, aoMap: front2, aoMapIntensity: 3}),
+  new THREE.MeshBasicMaterial({map: front2, aoMap: front2, aoMapIntensity: 3}),
 ];
 cubeMaterials2 = new THREE.MeshFaceMaterial( cubeMaterials2 );
 
 var cubeMaterials1 = [
   new THREE.MeshBasicMaterial({map: front, aoMap: front, aoMapIntensity: 2}),
-  new THREE.MeshBasicMaterial({map: front, aoMap: front, aoMapIntensity: 2}),
+  new THREE.MeshBasicMaterial({map: frontSide, aoMap: front, aoMapIntensity: 2}),
   new THREE.MeshBasicMaterial({map: black}),
   new THREE.MeshBasicMaterial({map: black, aoMap: front, aoMapIntensity: 2}),
-  new THREE.MeshBasicMaterial({map: front, aoMap: front, aoMapIntensity: 2}),
-  new THREE.MeshBasicMaterial({map: front, aoMap: front, aoMapIntensity: 2}),
+  new THREE.MeshBasicMaterial({map: frontSide, aoMap: front, aoMapIntensity: 2}),
+  new THREE.MeshBasicMaterial({map: frontSide, aoMap: front, aoMapIntensity: 2}),
+];
+cubeMaterials1 = new THREE.MeshFaceMaterial( cubeMaterials1 );
+
+var cubeMaterials3 = [
+  new THREE.MeshBasicMaterial({map: black}),
+  new THREE.MeshBasicMaterial({map: frontSide, aoMap: front, aoMapIntensity: 3}),
+  new THREE.MeshBasicMaterial({map: frontSide, aoMap: front, aoMapIntensity: 3}),
+  new THREE.MeshBasicMaterial({map: black}),
+  new THREE.MeshBasicMaterial({map: black}),
+  new THREE.MeshBasicMaterial({map: black}),
 ];
 cubeMaterials1 = new THREE.MeshFaceMaterial( cubeMaterials1 );
 
@@ -144,6 +158,43 @@ const createBox = (width, height, depth, position, material, shadowPosition, sha
     mesh.castShadow = true
     mesh.position.copy(position)
     scene.add(mesh)
+
+    //Light
+    // var customMaterial = new THREE.ShaderMaterial( 
+    //   {
+    //       uniforms: {  },
+    //     vertexShader:   `
+    //     varying vec3 vNormal;
+    //     void main() 
+    //     {
+    //         vNormal = normalize( normalMatrix * normal );
+    //         gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+    //     }
+    //     `,
+    //     fragmentShader: `
+    //     varying vec3 vNormal;
+    //     void main() 
+    //     {
+    //       float intensity = pow( 0.7 - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) ), 4.0 ); 
+    //         gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
+    //     }
+    //     `,
+    //     side: THREE.BackSide,
+    //     blending: THREE.AdditiveBlending,
+    //     transparent: true
+    //   }   );
+        
+    //  var ballGeometry = new THREE.BoxBufferGeometry( 1.3, 1, 1);
+      // var ball = new THREE.Mesh( boxGeometry, customMaterial );
+      // ball.scale.set(width*1.3, height*1.3, depth*1.3)
+      // ball.position.copy(position)
+      // scene.add( ball );
+
+    // const pl11 = new THREE.Points(new THREE.SphereBufferGeometry(2,64,64), new THREE.PointsMaterial({
+    //   size: 0.02,
+    //   sizeAttenuation: true
+    // })) 
+    // scene.add(pl11)
 
     // Cannon.js body
     const shape = new CANNON.Box(new CANNON.Vec3(width * 0.5, height * 0.5, depth * 0.5))
@@ -203,6 +254,7 @@ const generateSnow = () => {
 
  pointsMaterial = new THREE.PointsMaterial({
     size: snowParametrs.size,
+   // color: 'red',
     transparent:true,
     opacity: 0.8,
     map:snow,
@@ -223,7 +275,7 @@ for (let i = 0; i < snowParametrs.count; i++ ) {
     vertice.velocityY = (0.1 + Math.random() / 3) * snowParametrs.vertMovingSpeed
     /* Lateral speed */
     vertice.velocityX = ((Math.random() - 0.5) / 3)* snowParametrs.LatealSpeed;
-
+     
     /* Add vertices to geometry */
     geometry.vertices.push(vertice);
 
@@ -233,6 +285,8 @@ geometry.center();
 
 points = new THREE.Points(geometry, pointsMaterial);
 points.position.y = -30;
+// points.position.x = -50;
+// points.position.z = -30;
 
 scene.add(points);
 }
@@ -582,13 +636,14 @@ vehicle.wheelInfos.forEach((wheel) => {
   // wheel visual body
   const geometryCulinder = new THREE.CylinderBufferGeometry(0.3, 0.3, 0.3 / 2, 20);
  
-  const cylinder = new THREE.Mesh(geometryCulinder, cylinderMaterial);
+  const cylinder = new THREE.Mesh(geometryCulinder, cubeMaterials3);
   cylinder.geometry.rotateZ(Math.PI/2);
+  cylinder.rotation.reorder('YXZ')
   wheelVisuals.push(cylinder);
   //wheelVisuals.push(tesla.children[i].children[0]);
  scene.add(cylinder);
 });
-
+console.log(tesla.children[0].children[0]);
 //Tramplin
 // const trampline = new THREE.Mesh(
 //     new THREE.CylinderBufferGeometry(11.5, 8, 2, 11),
@@ -620,6 +675,7 @@ world.addEventListener('postStep', function() {
       vehicle.updateWheelTransform(i);
       var t = vehicle.wheelInfos[i].worldTransform;
       // update wheel physics
+      //console.log(wheelVisuals[0].rotation);
       wheelBodies[i].position.set(t.position);
       wheelBodies[i].quaternion.copy(t.quaternion);
      // tesla.children[1].position.copy(t.position)
@@ -627,7 +683,7 @@ world.addEventListener('postStep', function() {
       // update wheel visuals
       wheelVisuals[i].quaternion.copy(t.quaternion);
       wheelVisuals[i].position.copy(t.position);
-  
+      wheelVisuals[0].quaternion.copy(wheelVisuals[1].quaternion)
     }
   });
 
@@ -841,10 +897,15 @@ for(const object of brickObjects){
 //   console.log(box1.rotation)
 //   tesla.position.set(chassisBody.position.x, chassisBody.position.y, chassisBody.position.z)
 // }
+//chassisBody.velocity.x -= 0.1
+// if( chassisBody.velocity.x !== 0){
+ // chassisBody.velocity.x += 0.1
+// }
+//console.log(chassisBody.velocity.x);
 //console.log(box1.rotation);
 if(Math.abs(box1.rotation.z).toFixed(2) === (Math.PI).toFixed(2)) {
  // tesla.position.set(chassisBody.position.x, chassisBody.position.y + 0.65, chassisBody.position.z)
-  if(rotationBodyForceCount.up === 60) {
+  if(rotationBodyForceCount.up === 45) {
     chassisBody.velocity.y += 4
     chassisBody.velocity.x += 4
     rotationBodyForceCount.up = 0
@@ -854,7 +915,7 @@ if(Math.abs(box1.rotation.z).toFixed(2) === (Math.PI).toFixed(2)) {
 
 if((box1.rotation.z).toFixed(2) === (-Math.PI/2).toFixed(2)) {
  // tesla.position.set(chassisBody.position.x, chassisBody.position.y, chassisBody.position.z)
-  if(rotationBodyForceCount.edge === 60) {
+  if(rotationBodyForceCount.edge === 45) {
     chassisBody.velocity.y += 3
     chassisBody.velocity.x += -3
     rotationBodyForceCount.edge = 0
@@ -864,7 +925,7 @@ if((box1.rotation.z).toFixed(2) === (-Math.PI/2).toFixed(2)) {
 
 if((box1.rotation.z).toFixed(2) === (Math.PI/2).toFixed(2)) {
   //tesla.position.set(chassisBody.position.x, chassisBody.position.y, chassisBody.position.z)
-  if(rotationBodyForceCount.edge === 60) {
+  if(rotationBodyForceCount.edge === 45) {
     chassisBody.velocity.y += 3
     chassisBody.velocity.x += 3
     rotationBodyForceCount.edge = 0
@@ -919,73 +980,43 @@ const buttonRight = document.querySelector('.button-right1')
 console.log(buttonForward);
 
 buttonForward.addEventListener('pointerover', () => {
-  vehicle.setBrake(0.5, 0);
-  vehicle.setBrake(0.5, 1);
-  vehicle.setBrake(0.5, 2);
-  vehicle.setBrake(0.5, 3);
   vehicle.applyEngineForce(-engineForce, 2);
   vehicle.applyEngineForce(-engineForce, 3);
 })
 
 buttonForward.addEventListener('pointerout', () => {
-  vehicle.setBrake(0.5, 0);
-  vehicle.setBrake(0.5, 1);
-  vehicle.setBrake(0.5, 2);
-  vehicle.setBrake(0.5, 3);
+  vehicle.setBrake(6, 0);
   vehicle.applyEngineForce(0, 2);
   vehicle.applyEngineForce(0, 3);
 })
 
 buttonBack.addEventListener('pointerover', () => {
-  vehicle.setBrake(0.5, 0);
-  vehicle.setBrake(0.5, 1);
-  vehicle.setBrake(0.5, 2);
-  vehicle.setBrake(0.5, 3);
-  vehicle.applyEngineForce(engineForce, 2);
-  vehicle.applyEngineForce(engineForce, 3);
+  vehicle.applyEngineForce(engineForce/2, 2);
+  vehicle.applyEngineForce(engineForce/2, 3);
 })
 
 buttonBack.addEventListener('pointerout', () => {
-  vehicle.setBrake(0.5, 0);
-  vehicle.setBrake(0.5, 1);
-  vehicle.setBrake(0.5, 2);
-  vehicle.setBrake(0.5, 3);
+  vehicle.setBrake(6, 0);
   vehicle.applyEngineForce(0, 2);
   vehicle.applyEngineForce(0, 3);
 })
 
 buttonLeft.addEventListener('pointerover', () => {
-  vehicle.setBrake(0.5, 0);
-  vehicle.setBrake(0.5, 1);
-  vehicle.setBrake(0.5, 2);
-  vehicle.setBrake(0.5, 3);
   vehicle.setSteeringValue(maxSteerVal, 2);
   vehicle.setSteeringValue(maxSteerVal, 3);
 })
 
 buttonLeft.addEventListener('pointerout', () => {
-  vehicle.setBrake(0.5, 0);
-  vehicle.setBrake(0.5, 1);
-  vehicle.setBrake(0.5, 2);
-  vehicle.setBrake(0.5, 3);
   vehicle.setSteeringValue(0, 2);
   vehicle.setSteeringValue(0, 3);
 })
 
 buttonRight.addEventListener('pointerover', () => {
-  vehicle.setBrake(0.5, 0);
-  vehicle.setBrake(0.5, 1);
-  vehicle.setBrake(0.5, 2);
-  vehicle.setBrake(0.5, 3);
   vehicle.setSteeringValue(-maxSteerVal, 2);
   vehicle.setSteeringValue(-maxSteerVal, 3);
 })
 
 buttonRight.addEventListener('pointerout', () => {
-  vehicle.setBrake(0.5, 0);
-  vehicle.setBrake(0.5, 1);
-  vehicle.setBrake(0.5, 2);
-  vehicle.setBrake(0.5, 3);
   vehicle.setSteeringValue(0, 2);
   vehicle.setSteeringValue(0, 3);
 })
@@ -993,10 +1024,10 @@ buttonRight.addEventListener('pointerout', () => {
 const navigate = (e) => {
     if (e.type != 'keydown' && e.type != 'keyup') return;
     var keyup = e.type == 'keyup'
-    vehicle.setBrake(0.5, 0);
-    vehicle.setBrake(0.5, 1);
-    vehicle.setBrake(0.5, 2);
-    vehicle.setBrake(0.5, 3);
+     vehicle.setBrake(6, 0);
+    // vehicle.setBrake(2, 1);
+    // vehicle.setBrake(2, 2);
+    // vehicle.setBrake(2, 3);
   
 
     
@@ -1004,13 +1035,15 @@ const navigate = (e) => {
     switch(e.keyCode) {
   
       case 38: case 87: // forward
-        vehicle.applyEngineForce(keyup ? 0 : -engineForce, 2);
-        vehicle.applyEngineForce(keyup ? 0 : -engineForce, 3);
+      vehicle.applyEngineForce(keyup ? 0 : -engineForce, 2);
+      vehicle.applyEngineForce(keyup ? 0 : -engineForce, 3);
+      // vehicle.applyEngineForce(keyup ? 0 : -engineForce, 1);
+      //   vehicle.applyEngineForce(keyup ? 0 : -engineForce, 0);
         break;
   
       case 40: case 83: // backward
-        vehicle.applyEngineForce(keyup ? 0 : engineForce, 2);
-        vehicle.applyEngineForce(keyup ? 0 : engineForce, 3);
+        vehicle.applyEngineForce(keyup ? 0 : engineForce/2, 2);
+        vehicle.applyEngineForce(keyup ? 0 : engineForce/2, 3);
         break;
   
       case 39: case 68 : // right
