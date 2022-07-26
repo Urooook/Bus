@@ -24,6 +24,10 @@ body
     position: fixed;
     z-index: 1;
     display: none;
+    color: white;
+    background-color: rgba(0,0,0, 0.5);
+    border-radius: 5px;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .buttons1 {
@@ -44,6 +48,7 @@ img {
 .button-forward, .button-forward1 {
     bottom: 100px;
     right: 10px;
+    
     /* transform: rotate(90deg); */
     /* background-color: red; */
     /* background: url('./img/button.png'); */
@@ -52,24 +57,28 @@ img {
 .button-back, .button-back1 {
     bottom: 10px;
     right: 10px;
-    transform: rotate(180deg);
+    /* transform: rotate(180deg); */
 }
 
 .button-left, .button-left1 {
     bottom: 10px;
     left: 10px;
-    transform: rotate(-90deg);
+    /* transform: rotate(-90deg); */
 }
 
 .button-right, .button-right1 {
     bottom: 10px;
     left: 100px;
-    transform: rotate(90deg);
+    /* transform: rotate(90deg); */
 }
 
 @media (max-width: 760px) {
     .buttons {
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+        border: 2px solid white;
     }
     .buttons1 {
         display: block;
