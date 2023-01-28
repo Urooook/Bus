@@ -1,4 +1,4 @@
-# Three.js Journey
+# Создание маленького 3D мира с автобусом и зданиями
 
 ## Setup
 Download [Node.js](https://nodejs.org/en/download/).
