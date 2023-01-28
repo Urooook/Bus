@@ -1,8 +1,6 @@
 # Создание маленького 3D мира с автобусом и зданиями
 
-## Setup
-Download [Node.js](https://nodejs.org/en/download/).
-Run this followed commands:
+Сделано через библиотеку Three.js
 
 ``` bash
 # Install dependencies (only the first time)
